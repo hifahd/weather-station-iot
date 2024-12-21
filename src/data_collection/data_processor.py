@@ -19,8 +19,8 @@ class WeatherDataProcessor:
         self.data = pd.read_csv(self.file_path)
         print(f"Loaded {len(self.data)} records")
         
-        # Convert datetime
-        self.data['Date Time'] = pd.to_datetime(self.data['Date Time'])
+        # Convert datetime with European format (DD.MM.YYYY)
+        self.data['Date Time'] = pd.to_datetime(self.data['Date Time'], format='%d.%m.%Y %H:%M:%S')
         
         # Select relevant columns
         self.processed_data = self.data[[
@@ -74,6 +74,7 @@ def main():
     processed_data = processor.load_data()
     
     print("\nStarting data simulation...")
+    print(f"Will send data every 15 seconds (ThingSpeak free tier limitation)")
     
     # Simulate real-time data sending (first 100 records)
     for index, row in processed_data.head(100).iterrows():

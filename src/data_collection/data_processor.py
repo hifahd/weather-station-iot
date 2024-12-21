@@ -67,19 +67,36 @@ class WeatherDataProcessor:
             return False
 
 def main():
-    # Initialize processor
-    processor = WeatherDataProcessor('../../data/weather_dataset/max_planck_weather.csv')
-    
-    # Load and process data
-    processed_data = processor.load_data()
-    
-    print("\nStarting data simulation...")
-    print(f"Will send data every 15 seconds (ThingSpeak free tier limitation)")
-    
-    # Simulate real-time data sending (first 100 records)
-    for index, row in processed_data.head(100).iterrows():
-        processor.send_to_thingspeak(row)
-        time.sleep(15)  # ThingSpeak free tier requires 15s interval
+    try:
+        # Initialize processor
+        processor = WeatherDataProcessor('../../data/weather_dataset/max_planck_weather.csv')
         
+        # Load and process data
+        processed_data = processor.load_data()
+        
+        print("\nStarting data simulation...")
+        print(f"Will send data every 15 seconds (ThingSpeak free tier limitation)")
+        print("Press Ctrl+C to stop the simulation at any time")
+        
+        # Get total number of records
+        total_records = len(processed_data)
+        
+        # Send all data points
+        for index, row in processed_data.iterrows():
+            # Send data
+            print(f"\nSending record {index + 1}/{total_records}")
+            processor.send_to_thingspeak(row)
+            
+            # Wait for next transmission
+            if index < total_records - 1:  # Don't wait after the last record
+                time.sleep(15)  # ThingSpeak free tier requires 15s interval
+            
+    except KeyboardInterrupt:
+        print("\nSimulation stopped by user")
+    except Exception as e:
+        print(f"\nAn error occurred: {e}")
+    finally:
+        print("\nSimulation completed - Reached end of dataset")
+
 if __name__ == "__main__":
     main()
